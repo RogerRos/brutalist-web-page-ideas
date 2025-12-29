@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QUOTES</title>
+  <style>
+    :root{
+      --bg:#0b0b0b;          /* black */
+      --fg:#e6e6e6;          /* near-white */
+      --muted:#bdbdbd;       /* cement gray */
+      --panel:#141414;       /* dark cement */
+      --stroke:#2a2a2a;      /* hard lines */
+      --stroke2:#3a3a3a;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      letter-spacing: .2px;
+    }
+
+    /* hard grid */
+    .wrap{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    /* essential controls only */
+    .bar{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    input[type="search"]{
+      width: 100%;
+      padding: 12px 12px;
+      border: 2px solid var(--stroke2);
+      border-radius: 0;
+      background: var(--panel);
+      color: var(--fg);
+      outline: none;
+      font-family: var(--mono);
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+    input[type="search"]::placeholder{
+      color: var(--muted);
+      opacity: .9;
+    }
+    input[type="search"]:focus{
+      border-color: var(--fg);
+    }
+
+    .count{
+      padding: 12px 12px;
+      border: 2px solid var(--stroke2);
+      background: var(--panel);
+      border-radius: 0;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+    }
+
+    .card{
+      grid-column: span 6;
+      border: 2px solid var(--stroke2);
+      background: var(--panel);
+      border-radius: 0;
+      display:flex;
+      flex-direction: column;
+      min-height: 160px;
+    }
+
+    .card-top{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: stretch;
+      border-bottom: 2px solid var(--stroke);
+      padding: 10px;
+    }
+
+    .id{
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      display:flex;
+      align-items:center;
+    }
+
+    button{
+      appearance:none;
+      border: 2px solid var(--fg);
+      background: transparent;
+      color: var(--fg);
+      border-radius: 0;
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      cursor: pointer;
+    }
+    button:hover{
+      background: var(--fg);
+      color: var(--bg);
+    }
+    button:active{
+      transform: translateY(1px);
+    }
+
+    .body{
+      padding: 10px;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1 1 auto;
+    }
+
+    blockquote{
+      margin:0;
+      padding:0;
+      font-size: 16px;
+      line-height: 1.35;
+    }
+
+    .author{
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* toast: minimal */
+    .toast{
+      position: fixed;
+      left: 14px;
+      bottom: 14px;
+      padding: 10px 12px;
+      border: 2px solid var(--fg);
+      background: var(--bg);
+      color: var(--fg);
+      border-radius: 0;
+      text-transform: uppercase;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 120ms linear;
+      max-width: calc(100vw - 28px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .toast.show{ opacity: 1; }
+
+    @media (max-width: 980px){
+      .card{ grid-column: span 12; }
+      .bar{ grid-template-columns: 1fr; }
+      .count{ text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="bar">
+      <input id="q" type="search" placeholder="SEARCH" autocomplete="off" />
+      <div class="count"><span id="count">0</span></div>
+    </div>
+
+    <section class="cards" id="cards" aria-label="Quotes"></section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">COPIED</div>
+
+  <script>
+    const QUOTES = [
+      { id: "Q-001", text: "The only thing we have to fear is fear itself.", author: "Franklin D. Roosevelt" },
+      { id: "Q-002", text: "I think, therefore I am.", author: "René Descartes" },
+      { id: "Q-003", text: "To be, or not to be, that is the question.", author: "William Shakespeare" },
+      { id: "Q-004", text: "That's one small step for man, one giant leap for mankind.", author: "Neil Armstrong" },
+      { id: "Q-005", text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+      { id: "Q-006", text: "The unexamined life is not worth living.", author: "Socrates" },
+      { id: "Q-007", text: "Be the change that you wish to see in the world.", author: "Mahatma Gandhi" },
+      { id: "Q-008", text: "If you judge people, you have no time to love them.", author: "Mother Teresa" },
+      { id: "Q-009", text: "Not everything that can be counted counts, and not everything that counts can be counted.", author: "William Bruce Cameron" },
+      { id: "Q-010", text: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
+      { id: "Q-011", text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+      { id: "Q-012", text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle (attributed)" }
+    ];
+
+    const elCards = document.getElementById("cards");
+    const elQ = document.getElementById("q");
+    const elCount = document.getElementById("count");
+    const toast = document.getElementById("toast");
+    let toastTimer = null;
+
+    function showToast(){
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 900);
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function cardMarkup(q){
+      const hay = (q.text + " " + q.author + " " + q.id).toLowerCase();
+      return `
+        <article class="card" data-hay="${escapeHtml(hay)}">
+          <div class="card-top">
+            <div class="id">${escapeHtml(q.id)}</div>
+            <button type="button" data-copy="${escapeHtml(q.text)}">COPY</button>
+          </div>
+          <div class="body">
+            <blockquote>${escapeHtml(q.text)}</blockquote>
+            <div class="author">${escapeHtml(q.author)}</div>
+          </div>
+        </article>
+      `;
+    }
+
+    async function copyText(btn, text){
+      try{
+        await navigator.clipboard.writeText(text);
+      }catch{
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      btn.textContent = "COPIED";
+      showToast();
+      setTimeout(() => (btn.textContent = "COPY"), 700);
+    }
+
+    function render(){
+      elCards.innerHTML = QUOTES.map(cardMarkup).join("");
+      bind();
+      applyFilter();
+    }
+
+    function bind(){
+      elCards.querySelectorAll("button[data-copy]").forEach(btn => {
+        btn.addEventListener("click", () => copyText(btn, btn.getAttribute("data-copy")));
+      });
+    }
+
+    function applyFilter(){
+      const needle = elQ.value.trim().toLowerCase();
+      let shown = 0;
+
+      Array.from(elCards.children).forEach(card => {
+        const hay = (card.getAttribute("data-hay") || "").toLowerCase();
+        const ok = needle === "" || hay.includes(needle);
+        card.style.display = ok ? "" : "none";
+        if (ok) shown++;
+      });
+
+      elCount.textContent = String(shown);
+    }
+
+    elQ.addEventListener("input", applyFilter);
+    render();
+  </script>
+</body>
+</html>
